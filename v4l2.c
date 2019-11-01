@@ -35,9 +35,7 @@
 
 #include DEF_MPERS_TYPE(struct_v4l2_buffer)
 #include DEF_MPERS_TYPE(struct_v4l2_clip)
-#ifdef VIDIOC_CREATE_BUFS
-# include DEF_MPERS_TYPE(struct_v4l2_create_buffers)
-#endif
+#include DEF_MPERS_TYPE(struct_v4l2_create_buffers)
 #include DEF_MPERS_TYPE(struct_v4l2_ext_control)
 #include DEF_MPERS_TYPE(struct_v4l2_ext_controls)
 #include DEF_MPERS_TYPE(struct_v4l2_format)
@@ -47,9 +45,22 @@
 
 typedef struct v4l2_buffer struct_v4l2_buffer;
 typedef struct v4l2_clip struct_v4l2_clip;
-#ifdef VIDIOC_CREATE_BUFS
-typedef struct v4l2_create_buffers struct_v4l2_create_buffers;
+
+typedef struct {
+	uint32_t index;
+	uint32_t count;
+	uint32_t memory;
+	struct_v4l2_format format;
+	/** V4L2_BUF_CAP_SUPPORTS_*, added by Linux commit v4.20-rc1~51^2~14 */
+	uint32_t capabilities;
+	uint32_t reserved[7];
+} struct_v4l2_create_buffers;
+
+#ifdef HAVE_STRUCT_V4L2_CREATE_BUFFERS
+CHECK_V4L2_STRUCT_RESERVED_SIZE(v4l2_create_buffers);
 #endif
+
+
 typedef struct v4l2_ext_control struct_v4l2_ext_control;
 typedef struct v4l2_ext_controls struct_v4l2_ext_controls;
 typedef struct v4l2_format struct_v4l2_format;
