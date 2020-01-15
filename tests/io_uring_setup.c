@@ -55,11 +55,11 @@ main(void)
 	sys_io_uring_setup(1, params);
 	printf("io_uring_setup(%u, {flags=IORING_SETUP_IOPOLL"
 	       "|IORING_SETUP_SQPOLL|IORING_SETUP_SQ_AFF|%#x"
-	       ", sq_thread_cpu=%#x, sq_thread_idle=%u, resv={",
+	       ", sq_thread_cpu=%#x, sq_thread_idle=%u, resv=[",
 	       1, -1U - 7, params->sq_thread_cpu, params->sq_thread_idle);
 	for (unsigned int i = 0; i < ARRAY_SIZE(params->resv); ++i)
 		printf("%s%#x", i ? ", " : "", params->resv[i]);
-	printf("}}) = %s\n", errstr);
+	printf("]}) = %s\n", errstr);
 
 	memset(params, 0, sizeof(*params));
 	rc = sys_io_uring_setup(2, params);
