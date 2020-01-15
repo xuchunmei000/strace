@@ -402,7 +402,6 @@ AC_CHECK_HEADERS(m4_normalize([
 	linux/hiddev.h
 	linux/if_addr.h
 	linux/if_link.h
-	linux/io_uring.h
 	linux/ip_vs.h
 	linux/ipc.h
 	linux/kcmp.h
@@ -483,6 +482,18 @@ AC_CHECK_HEADERS([linux/bpf.h], [
 		struct bpf_prog_info
 	]),,, [#include <linux/bpf.h>])
 	st_BPF_ATTR
+])
+
+AC_CHECK_HEADERS([linux/io_uring.h], [
+	AC_CHECK_TYPES(m4_normalize([
+		struct io_sqring_offsets,
+		struct io_cqring_offsets,
+		struct io_uring_params
+	]),,, [#include <linux/io_uring.h>])
+	AC_CHECK_MEMBERS(m4_normalize([
+		struct io_cqring_offsets.resv,
+		struct io_uring_params.resv
+	]),,, [#include <linux/io_uring.h>])
 ])
 
 AC_CHECK_HEADERS([bluetooth/bluetooth.h], [
