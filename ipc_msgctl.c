@@ -17,15 +17,8 @@
 
 #include "ipc_defs.h"
 
-#ifdef HAVE_SYS_MSG_H
-/* The C library generally exports the struct the current kernel expects. */
-# include <sys/msg.h>
-typedef struct msqid_ds msqid_ds_t;
-#elif defined HAVE_LINUX_MSG_H
-/* The linux header might provide the right struct. */
-# include <linux/msg.h>
-typedef struct msqid64_ds msqid_ds_t;
-#endif
+#include MSG_H_PROVIDER
+typedef struct NAME_OF_STRUCT_MSQID_DS msqid_ds_t;
 
 #include MPERS_DEFS
 
