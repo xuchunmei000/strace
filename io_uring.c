@@ -52,6 +52,12 @@ typedef struct {
 	struct_io_cqring_offsets cq_off;
 } struct_io_uring_params;
 
+typedef struct {
+	uint32_t offset;
+	uint32_t resv;
+	uint64_t /* int * */ fds;
+} struct_io_uring_files_update;
+
 #ifdef HAVE_STRUCT_IO_SQRING_OFFSETS
 static_assert(sizeof(struct_io_sqring_offsets)
 	      == sizeof(struct io_sqring_offsets),
@@ -96,6 +102,12 @@ static_assert(0, "struct io_uring_params.resv is missing"
 		 ", please update the decoder");
 # endif
 #endif /* HAVE_STRUCT_IO_URING_PARAMS */
+#ifdef HAVE_STRUCT_IO_URING_FILES_UPDATE
+static_assert(sizeof(struct_io_uring_files_update)
+             == sizeof(struct io_uring_files_update),
+             "struct io_uring_files_update size mismatch"
+             ", please update the decoder");
+#endif
 
 
 SYS_FUNC(io_uring_setup)
@@ -186,6 +198,26 @@ print_fd_array_member(struct tcb *tcp, void *elem_buf, size_t elem_size,
 	return true;
 }
 
+static void
+print_io_uring_files_update(struct tcb *tcp, const kernel_ulong_t addr,
+			    const unsigned int nargs)
+{
+	struct_io_uring_files_update arg;
+	int buf;
+
+	if (umove_or_printaddr(tcp, addr, &arg))
+		return;
+
+	PRINT_FIELD_U("{", arg, offset);
+	if (arg.resv)
+		PRINT_FIELD_X(", ", arg, resv);
+	tprints(", fds=");
+	print_big_u64_addr(arg.fds);
+	print_array(tcp, arg.fds, nargs, &buf, sizeof(buf),
+		    tfetch_mem, print_fd_array_member, NULL);
+	tprints("}");
+}
+
 SYS_FUNC(io_uring_register)
 {
 	const int fd = tcp->u_arg[0];
@@ -206,6 +238,9 @@ SYS_FUNC(io_uring_register)
 	case IORING_REGISTER_EVENTFD:
 		print_array(tcp, arg, nargs, &buf, sizeof(buf),
 			    tfetch_mem, print_fd_array_member, NULL);
+		break;
+	case IORING_REGISTER_FILES_UPDATE:
+		print_io_uring_files_update(tcp, arg, nargs);
 		break;
 	default:
 		printaddr(arg);
